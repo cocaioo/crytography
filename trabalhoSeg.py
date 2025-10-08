@@ -17,7 +17,6 @@ class CrypTool:
         except ValueError as e:
             raise ValueError(f"Erro ao converter hexadecimal: {e}")
     
-
     @staticmethod
     def utf8_to_bytes(utf8_str):
         return utf8_str.encode('utf-8')
@@ -25,3 +24,18 @@ class CrypTool:
     @staticmethod
     def bytes_to_base64(data):
         return base64.b64decode(data).decode('utf-8')
+    
+    @staticmethod
+    def base_64_to_bytes(b64_str):
+        try:
+            return base64.b64decode(b64_str)
+        except Exception as e:
+            raise ValueError(f"Erro ao decodificar Base64: {e}")
+        
+    @staticmethod
+    def pad_pkcs7(data, block_size=16):
+        padding_lenght = block_size - (len(data) % block_size)
+        padding = bytes([padding_lenght] * padding_lenght)
+        return data + padding 
+    
+    
