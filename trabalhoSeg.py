@@ -38,4 +38,3 @@ class CrypTool:
         padding = bytes([padding_lenght] * padding_lenght)
         return data + padding 
     
-    
