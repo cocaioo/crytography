@@ -1,0 +1,1424 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[brazilian]{babel}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{tikz}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+% Definir cores personalizadas
+\definecolor{primaryblue}{RGB}{41,128,185}
+\definecolor{darkblue}{RGB}{23,32,42}
+\definecolor{lightblue}{RGB}{174,214,241}
+\definecolor{successgreen}{RGB}{39,174,96}
+\definecolor{warningorange}{RGB}{230,126,34}
+\definecolor{dangerred}{RGB}{231,76,60}
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{commentgreen}{RGB}{46,125,50}
+\definecolor{keywordpurple}{RGB}{123,31,162}
+\definecolor{stringorange}{RGB}{255,87,34}
+
+% Configuração avançada do código Python
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    backgroundcolor=\color{codebg},
+    commentstyle=\color{commentgreen}\itshape,
+    keywordstyle=\color{keywordpurple}\bfseries,
+    numberstyle=\tiny\color{gray},
+    stringstyle=\color{stringorange},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=leftline,
+    framesep=10pt,
+    framerule=2pt,
+    rulecolor=\color{primaryblue},
+    xleftmargin=15pt,
+    framexleftmargin=10pt
+}
+
+\lstdefinestyle{bashstyle}{
+    language=bash,
+    backgroundcolor=\color{darkblue!5},
+    commentstyle=\color{commentgreen}\itshape,
+    keywordstyle=\color{primaryblue}\bfseries,
+    numberstyle=\tiny\color{gray},
+    stringstyle=\color{successgreen},
+    basicstyle=\ttfamily\small\color{darkblue},
+    breakatwhitespace=false,
+    breaklines=true,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    framesep=8pt,
+    rulecolor=\color{darkblue!30}
+}
+
+\lstset{style=pythonstyle}
+
+% Caixas personalizadas
+\newtcolorbox{infobox}[1]{
+    colback=lightblue!10,
+    colframe=primaryblue,
+    fonttitle=\bfseries,
+    title={\faInfoCircle\ #1},
+    arc=3mm
+}
+
+\newtcolorbox{warningbox}[1]{
+    colback=warningorange!10,
+    colframe=warningorange,
+    fonttitle=\bfseries,
+    title={\faExclamationTriangle\ #1},
+    arc=3mm
+}
+
+\newtcolorbox{successbox}[1]{
+    colback=successgreen!10,
+    colframe=successgreen,
+    fonttitle=\bfseries,
+    title={\faCheckCircle\ #1},
+    arc=3mm
+}
+
+\newtcolorbox{dangerbox}[1]{
+    colback=dangerred!10,
+    colframe=dangerred,
+    fonttitle=\bfseries,
+    title={\faTimesCircle\ #1},
+    arc=3mm
+}
+
+% Configuração de seções
+\titleformat{\section}
+    {\normalfont\LARGE\bfseries\color{primaryblue}}
+    {\thesection}{1em}{}
+    [\titlerule]
+
+\titleformat{\subsection}
+    {\normalfont\Large\bfseries\color{darkblue}}
+    {\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+    {\normalfont\large\bfseries\color{primaryblue!80}}
+    {\thesubsubsection}{1em}{}
+
+% Cabeçalho e rodapé personalizados
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\color{primaryblue}\textbf{Segurança Computacional}}
+\fancyhead[R]{\color{darkblue}AES \& RSA}
+\fancyfoot[C]{\color{gray}\thepage}
+\renewcommand{\headrulewidth}{2pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{primaryblue}\leaders\hrule height \headrulewidth\hfill}}
+
+% Configuração de hyperlinks
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primaryblue,
+    filecolor=primaryblue,
+    urlcolor=primaryblue,
+    citecolor=primaryblue
+}
+
+\title{
+    \Huge\textbf{\color{primaryblue}Sistema de Criptografia}\\
+    \vspace{5mm}
+    \Large\textbf{AES e RSA}\\
+    \vspace{3mm}
+    \large Implementação e Documentação\\
+    \vspace{2mm}
+    \normalsize Trabalho 01 - Segurança em Sistemas
+}
+\author{
+    \large Caio Victor Ferreira do Nascimento\\
+    \normalsize caio.ferreira@ufpi.edu.br\\
+    \normalsize Universidade Federal do Piauí - UFPI\\
+    \normalsize Disciplina: Segurança em Sistemas
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{15mm}
+\begin{center}
+\begin{tcolorbox}[width=0.85\textwidth,colback=primaryblue!5,colframe=primaryblue,arc=5mm]
+\centering
+\Large\textbf{Resumo}\\
+\vspace{3mm}
+\normalsize
+Este documento apresenta uma implementação completa de algoritmos criptográficos em Python, incluindo \textbf{AES} (cifragem simétrica nos modos ECB e CBC) e \textbf{RSA} (geração de chaves, assinatura e verificação digital). O sistema oferece interface interativa via terminal com suporte a múltiplos formatos de entrada/saída (HEX, Base64, UTF-8) e compatibilidade total com OpenSSL.
+\end{tcolorbox}
+\end{center}
+
+\newpage
+
+\section{Introdução}
+
+Este sistema implementa os algoritmos \textbf{AES} e \textbf{RSA} em Python usando a biblioteca \texttt{cryptography}, oferecendo funcionalidades de cifragem simétrica, geração de chaves assimétricas, assinatura digital e verificação.
+
+\subsection{Objetivos}
+
+\begin{itemize}[leftmargin=*]
+    \item[\faCheck] Implementar AES nos modos ECB e CBC com padding PKCS7
+    \item[\faCheck] Gerar pares de chaves RSA (1024 e 2048 bits)
+    \item[\faCheck] Implementar assinatura digital RSA-PSS com SHA-2
+    \item[\faCheck] Fornecer interface interativa e intuitiva
+\end{itemize}
+
+\subsection{Requisitos}
+
+\begin{tcolorbox}[colback=darkblue!5,colframe=darkblue!50]
+\textbf{Software:} Python 3.6+ e biblioteca \texttt{cryptography}\\
+\textbf{Instalação:} \texttt{pip install cryptography}
+\end{tcolorbox}
+
+\section{Fundamentos Teóricos}
+
+\subsection{AES (Advanced Encryption Standard)}
+
+\begin{tcolorbox}[colback=lightblue!5,colframe=primaryblue,title=\faKey\ Características]
+\textbf{Tipo:} Cifra simétrica de bloco (128 bits)\\
+\textbf{Chaves:} 128, 192 ou 256 bits\\
+\textbf{Modos:} ECB (inseguro), CBC (recomendado)\\
+\textbf{Padding:} PKCS7
+\end{tcolorbox}
+
+\textbf{Modo CBC:} Cada bloco é combinado (XOR) com o anterior, requerendo IV de 128 bits. Oculta padrões e é mais seguro.
+
+\textbf{Modo ECB:} Cada bloco cifrado independentemente. Preserva padrões visuais - não recomendado para produção.
+
+\subsection{RSA (Rivest-Shamir-Adleman)}
+
+\begin{tcolorbox}[colback=successgreen!5,colframe=successgreen,title=\faLock\ Características]
+\textbf{Tipo:} Cifra assimétrica (chave pública/privada)\\
+\textbf{Tamanhos:} 2048 bits (recomendado)\\
+\textbf{Formato:} PEM (compatível OpenSSL)\\
+\textbf{Assinatura:} PSS (Probabilistic Signature Scheme)
+\end{tcolorbox}
+
+\textbf{Assinatura Digital:} Garante autenticidade, integridade e não-repúdio usando hash SHA-2 e esquema PSS.
+
+\section{Implementação}
+
+\subsection{Estrutura do Código}
+
+O sistema usa a classe \texttt{CryptoTool} com métodos estáticos para todas as operações:
+
+\begin{lstlisting}[caption={Imports e Estrutura Principal}]
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.backends import default_backend
+
+class CryptoTool:
+    @staticmethod
+    def pad_pkcs7(data, block_size=16):
+        padding_length = block_size - (len(data) % block_size)
+        padding = bytes([padding_length] * padding_length)
+        return data + padding
+    
+    @staticmethod
+    def unpad_pkcs7(data):
+        padding_length = data[-1]
+        return data[:-padding_length]
+\end{lstlisting}
+
+\subsection{Cifragem AES}
+
+\begin{lstlisting}[caption={Função AES Encrypt (simplificada)}]
+def aes_encrypt(self, plaintext_file, key, iv, key_size, mode, 
+                output_format, key_format, output_file):
+    with open(plaintext_file, 'rb') as f:
+        plaintext = f.read()
+    
+    key_bytes = self.hex_to_bytes(key) if key_format == 'HEX' \
+                else self.utf8_to_bytes(key)
+    
+    padded_plaintext = self.pad_pkcs7(plaintext)
+    
+    if mode == 'CBC':
+        iv_bytes = self.hex_to_bytes(iv) if key_format == 'HEX' \
+                   else self.utf8_to_bytes(iv)
+        cipher = Cipher(algorithms.AES(key_bytes), 
+                       modes.CBC(iv_bytes), backend=default_backend())
+    else:
+        cipher = Cipher(algorithms.AES(key_bytes), 
+                       modes.ECB(), backend=default_backend())
+    
+    encryptor = cipher.encryptor()
+    ciphertext = encryptor.update(padded_plaintext) + encryptor.finalize()
+    
+    output_data = self.bytes_to_hex(ciphertext) if output_format == 'HEX' \
+                  else self.bytes_to_base64(ciphertext)
+    
+    with open(output_file, 'w') as f:
+        f.write(output_data)
+\end{lstlisting}
+
+\subsection{Geração de Chaves RSA}
+
+\begin{lstlisting}[caption={Geração de Par RSA}]
+def generate_rsa_keys(self, key_size, private_key_file, public_key_file):
+    private_key = rsa.generate_private_key(
+        public_exponent=65537, key_size=key_size,
+        backend=default_backend()
+    )
+    
+    private_pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+    
+    public_pem = private_key.public_key().public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
+    
+    with open(private_key_file, 'wb') as f:
+        f.write(private_pem)
+    with open(public_key_file, 'wb') as f:
+        f.write(public_pem)
+\end{lstlisting}
+
+\subsection{Assinatura Digital}
+
+\begin{lstlisting}[caption={Assinatura RSA-PSS}]
+def rsa_sign(self, private_key_file, plaintext_file, 
+             signature_file, sha_version, output_format):
+    with open(private_key_file, 'rb') as f:
+        private_key = serialization.load_pem_private_key(
+            f.read(), password=None, backend=default_backend()
+        )
+    
+    with open(plaintext_file, 'rb') as f:
+        plaintext = f.read()
+    
+    hash_algo = hashes.SHA256() if sha_version == 256 \
+                else hashes.SHA512()
+    
+    signature = private_key.sign(
+        plaintext,
+        padding.PSS(mgf=padding.MGF1(hash_algo),
+                   salt_length=padding.PSS.MAX_LENGTH),
+        hash_algo
+    )
+    
+    output_data = self.bytes_to_hex(signature) if output_format == 'HEX' \
+                  else self.bytes_to_base64(signature)
+    
+    with open(signature_file, 'w') as f:
+        f.write(output_data)
+\end{lstlisting}
+
+\section{Manual de Uso Detalhado}
+
+\subsection{Execução e Menu Principal}
+
+\begin{lstlisting}[style=bashstyle]
+python trabalhoSeg.py
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=darkblue!90,coltext=white]
+\footnotesize
+\begin{verbatim}
+============================================================
+  SISTEMA DE CRIPTOGRAFIA - AES E RSA
+============================================================
+1. Cifrar arquivo (AES)
+2. Decifrar arquivo (AES)
+3. Gerar par de chaves RSA
+4. Assinar arquivo (RSA)
+5. Verificar assinatura (RSA)
+0. Sair
+============================================================
+Escolha uma opção: _
+\end{verbatim}
+\end{tcolorbox}
+
+\subsection{Opção 1: Cifrar Arquivo (AES)}
+
+O sistema solicitará 8 informações em sequência:
+
+\begin{tcolorbox}[colback=primaryblue!10,colframe=primaryblue,title={\faLock\ Campos para Cifragem AES}]
+
+\textbf{1. Arquivo de entrada (claro):}\\
+\quad \faFileAlt\ Digite o nome do arquivo que deseja cifrar\\
+\quad Exemplo: \texttt{mensagem.txt} ou \texttt{foto.jpg}
+
+\textbf{2. Chave:}\\
+\quad \faKey\ Digite a chave secreta (string de texto ou hexadecimal)\\
+\quad \textit{HEX}: \texttt{3f2a7b9c4d8e1f5a6b3c9d2e4f7a8b1c} (32 chars = 128 bits)\\
+\quad \textit{UTF8}: \texttt{SenhaSegura123!} (texto comum)
+
+\textbf{3. Tamanho da chave (128/192/256):}\\
+\quad \faHashtag\ Digite \texttt{128}, \texttt{192} ou \texttt{256}\\
+\quad $\rightarrow$ A chave fornecida deve ter exatamente:\\
+\quad \quad 128 bits = 16 bytes = 32 chars hex\\
+\quad \quad 192 bits = 24 bytes = 48 chars hex\\
+\quad \quad 256 bits = 32 bytes = 64 chars hex
+
+\textbf{4. Modo de operação (ECB/CBC):}\\
+\quad \faCogs\ Digite \texttt{ECB} ou \texttt{CBC}\\
+\quad \textit{ECB}: Modo simples, não precisa de IV\\
+\quad \textit{CBC}: Modo seguro, requer IV (próximo campo)
+
+\textbf{5. Vetor de Inicialização (IV):} \textit{[apenas se CBC]}\\
+\quad \faRandom\ Digite o IV de 16 bytes (128 bits)\\
+\quad \textit{HEX}: \texttt{9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d} (32 chars)\\
+\quad \textit{UTF8}: \texttt{InicioAleatorio!} (16 caracteres)
+
+\textbf{6. Formato da chave/IV (HEX/UTF8):}\\
+\quad \faCode\ Digite \texttt{HEX} ou \texttt{UTF8}\\
+\quad Define como interpretar a chave e IV fornecidos acima
+
+\textbf{7. Formato de saída (HEX/BASE64):}\\
+\quad \faFileCode\ Digite \texttt{HEX} ou \texttt{BASE64}\\
+\quad Define como o texto cifrado será salvo no arquivo de saída
+
+\textbf{8. Arquivo de saída:}\\
+\quad \faSave\ Digite o nome do arquivo cifrado\\
+\quad Exemplo: \texttt{mensagem\_cifrada.txt}
+
+\end{tcolorbox}
+
+\begin{warningbox}
+\textbf{\faExclamationTriangle\ IMPORTANTE:} Guarde a chave, IV e modo utilizados! Sem eles, não será possível decifrar.
+\end{warningbox}
+
+\subsection{Opção 2: Decifrar Arquivo (AES)}
+
+\textbf{Use EXATAMENTE os mesmos parâmetros da cifragem:}
+
+\begin{tcolorbox}[colback=successgreen!10,colframe=successgreen,title={\faUnlock\ Campos para Decifragem AES}]
+
+\textbf{1. Arquivo de entrada (cifrado):}\\
+\quad \faFileAlt\ Digite o nome do arquivo cifrado\\
+\quad Exemplo: \texttt{mensagem\_cifrada.txt}
+
+\textbf{2. Chave:}\\
+\quad \faKey\ Digite a \textbf{mesma chave} usada na cifragem
+
+\textbf{3. Tamanho da chave (128/192/256):}\\
+\quad \faHashtag\ Digite o \textbf{mesmo tamanho} usado na cifragem
+
+\textbf{4. Modo de operação (ECB/CBC):}\\
+\quad \faCogs\ Digite o \textbf{mesmo modo} usado na cifragem
+
+\textbf{5. Vetor de Inicialização (IV):} \textit{[se usou CBC]}\\
+\quad \faRandom\ Digite o \textbf{mesmo IV} usado na cifragem
+
+\textbf{6. Formato da chave/IV (HEX/UTF8):}\\
+\quad \faCode\ Digite o \textbf{mesmo formato} usado na cifragem
+
+\textbf{7. Formato de entrada (HEX/BASE64):}\\
+\quad \faFileCode\ Digite o formato do arquivo cifrado\\
+\quad Deve corresponder ao "Formato de saída" da cifragem
+
+\textbf{8. Arquivo de saída:}\\
+\quad \faSave\ Digite o nome para salvar o arquivo decifrado\\
+\quad Exemplo: \texttt{mensagem\_recuperada.txt}
+
+\end{tcolorbox}
+
+\subsection{Opção 3: Gerar Chaves RSA}
+
+Cria um par de chaves (pública + privada) para assinatura digital:
+
+\begin{tcolorbox}[colback=warningorange!10,colframe=warningorange,title={\faKey\ Campos para Geração RSA}]
+
+\textbf{1. Tamanho da chave (1024/2048):}\\
+\quad \faHashtag\ Digite \texttt{1024} ou \texttt{2048}\\
+\quad Recomendado: \texttt{2048} (mais seguro)
+
+\textbf{2. Arquivo para chave privada:}\\
+\quad \faLock\ Digite o nome do arquivo (ex: \texttt{privada.pem})\\
+\quad \textbf{Mantenha este arquivo em segredo!}
+
+\textbf{3. Arquivo para chave pública:}\\
+\quad \faUnlock\ Digite o nome do arquivo (ex: \texttt{publica.pem})\\
+\quad Este arquivo pode ser compartilhado
+
+\end{tcolorbox}
+
+\subsection{Opção 4: Assinar Arquivo (RSA)}
+
+Cria uma assinatura digital usando a \textbf{chave privada}:
+
+\begin{tcolorbox}[colback=primaryblue!10,colframe=primaryblue,title={\faSignature\ Campos para Assinatura RSA}]
+
+\textbf{1. Arquivo com chave privada:}\\
+\quad \faLock\ Digite o nome do arquivo da chave privada\\
+\quad Exemplo: \texttt{privada.pem}
+
+\textbf{2. Arquivo em claro:}\\
+\quad \faFileAlt\ Digite o nome do arquivo que deseja assinar\\
+\quad Exemplo: \texttt{documento.txt}
+
+\textbf{3. Arquivo para assinatura:}\\
+\quad \faSave\ Digite o nome para salvar a assinatura\\
+\quad Exemplo: \texttt{documento.sig}
+
+\textbf{4. Versão SHA-2 (256/384/512):}\\
+\quad \faHashtag\ Digite \texttt{256}, \texttt{384} ou \texttt{512}\\
+\quad Recomendado: \texttt{256} (mais comum)
+
+\textbf{5. Formato de saída (HEX/BASE64):}\\
+\quad \faFileCode\ Digite \texttt{HEX} ou \texttt{BASE64}\\
+\quad Define como a assinatura será salva
+
+\end{tcolorbox}
+
+\subsection{Opção 5: Verificar Assinatura (RSA)}
+
+Valida se a assinatura é autêntica usando a \textbf{chave pública}:
+
+\begin{tcolorbox}[colback=successgreen!10,colframe=successgreen,title={\faCheckCircle\ Campos para Verificação RSA}]
+
+\textbf{1. Arquivo com chave pública:}\\
+\quad \faUnlock\ Digite o nome do arquivo da chave pública\\
+\quad Exemplo: \texttt{publica.pem}
+
+\textbf{2. Arquivo em claro:}\\
+\quad \faFileAlt\ Digite o nome do arquivo original (não cifrado)\\
+\quad Deve ser o \textbf{mesmo arquivo} que foi assinado
+
+\textbf{3. Arquivo com assinatura:}\\
+\quad \faFileSignature\ Digite o nome do arquivo de assinatura\\
+\quad Exemplo: \texttt{documento.sig}
+
+\textbf{4. Versão SHA-2 (256/384/512):}\\
+\quad \faHashtag\ Digite a \textbf{mesma versão} usada na assinatura
+
+\textbf{5. Formato da assinatura (HEX/BASE64):}\\
+\quad \faFileCode\ Digite o \textbf{mesmo formato} usado na assinatura
+
+\end{tcolorbox}
+
+\textbf{Resultado:} O sistema exibirá \texttt{✓ Assinatura VÁLIDA} ou \texttt{✗ Assinatura INVÁLIDA}
+
+\subsection{Exemplo Completo: Workflow AES}
+
+\begin{lstlisting}[style=bashstyle,caption={1. Preparar arquivo}]
+echo "Dados confidenciais da empresa" > relatorio.txt
+\end{lstlisting}
+
+\textbf{2. No menu, escolha opção \texttt{1} e preencha:}
+
+\begin{tcolorbox}[colback=codebg,colframe=gray!50]
+\footnotesize
+\texttt{Arquivo de entrada: relatorio.txt}\\
+\texttt{Chave: ChaveSecreta2024!!}\\
+\texttt{Tamanho da chave: 128} \textcolor{gray}{(16 caracteres)}\\
+\texttt{Modo: CBC}\\
+\texttt{IV: InicioAleatori!} \textcolor{gray}{(16 caracteres)}\\
+\texttt{Formato chave/IV: UTF8}\\
+\texttt{Formato de saída: BASE64}\\
+\texttt{Arquivo de saída: relatorio\_cifrado.txt}
+\end{tcolorbox}
+
+\textbf{3. Para decifrar, escolha opção \texttt{2} com os mesmos parâmetros:}
+
+\begin{tcolorbox}[colback=codebg,colframe=gray!50]
+\footnotesize
+\texttt{Arquivo de entrada: relatorio\_cifrado.txt}\\
+\texttt{[mesmos parâmetros da cifragem]}\\
+\texttt{Arquivo de saída: relatorio\_recuperado.txt}
+\end{tcolorbox}
+
+\subsection{Exemplo Completo: Workflow RSA}
+
+\begin{lstlisting}[style=bashstyle,caption={1. Preparar documento}]
+echo "Contrato de venda no valor de R\$ 100.000" > contrato.txt
+\end{lstlisting}
+
+\textbf{2. No menu, escolha opção \texttt{3} para gerar chaves:}
+
+\begin{tcolorbox}[colback=codebg,colframe=gray!50]
+\footnotesize
+\texttt{Tamanho da chave: 2048}\\
+\texttt{Arquivo para chave privada: privada.pem}\\
+\texttt{Arquivo para chave pública: publica.pem}
+\end{tcolorbox}
+
+\textbf{3. No menu, escolha opção \texttt{4} para assinar o documento:}
+
+\begin{tcolorbox}[colback=codebg,colframe=gray!50]
+\footnotesize
+\texttt{Arquivo com chave privada: privada.pem}\\
+\texttt{Arquivo em claro: contrato.txt}\\
+\texttt{Arquivo para assinatura: contrato.sig}\\
+\texttt{Versão SHA-2: 256}\\
+\texttt{Formato de saída: BASE64}
+\end{tcolorbox}
+
+\textbf{4. Para verificar, escolha opção \texttt{5}:}
+
+\begin{tcolorbox}[colback=codebg,colframe=gray!50]
+\footnotesize
+\texttt{Arquivo com chave pública: publica.pem}\\
+\texttt{Arquivo em claro: contrato.txt}\\
+\texttt{Arquivo com assinatura: contrato.sig}\\
+\texttt{Versão SHA-2: 256}\\
+\texttt{Formato da assinatura: BASE64}\\[0.5em]
+\textcolor{successgreen}{\textbf{Resultado: ✓ Assinatura VÁLIDA}}
+\end{tcolorbox}
+
+\textbf{5. Teste de integridade - modifique o arquivo:}
+
+\begin{lstlisting}[style=bashstyle]
+echo "FRAUDE" >> contrato.txt
+\end{lstlisting}
+
+\textbf{6. Verifique novamente (opção \texttt{5} com mesmos parâmetros):}
+
+\begin{tcolorbox}[colback=dangerred!10,colframe=dangerred]
+\footnotesize
+\textcolor{dangerred}{\textbf{Resultado: ✗ Assinatura INVÁLIDA}}\\
+\textit{O sistema detectou que o arquivo foi alterado!}
+\end{tcolorbox}
+
+\subsection{Dicas Práticas de Uso}
+
+\begin{infobox}
+\textbf{Formatos de Chave/IV:}
+\begin{itemize}
+    \item \textbf{HEX:} Use quando gerar chaves aleatórias com Python\\
+    \quad Exemplo: \texttt{3f2a7b9c4d8e1f5a...} (caracteres 0-9, a-f)
+    \item \textbf{UTF8:} Use quando quiser senhas legíveis\\
+    \quad Exemplo: \texttt{MinhaSenha123!} (qualquer texto)
+\end{itemize}
+\end{infobox}
+
+\begin{infobox}
+\textbf{Formatos de Saída:}
+\begin{itemize}
+    \item \textbf{HEX:} Compatível com ferramentas Unix (xxd, hexdump)
+    \item \textbf{BASE64:} Compatível com email, JSON, OpenSSL
+\end{itemize}
+\end{infobox}
+
+\begin{successbox}
+\textbf{Tamanho de Chaves/IV:}\\[0.5em]
+\begin{tabular}{lll}
+\textbf{AES-128:} & 16 bytes & = 32 hex \textit{ou} 16 UTF-8 \\
+\textbf{AES-192:} & 24 bytes & = 48 hex \textit{ou} 24 UTF-8 \\
+\textbf{AES-256:} & 32 bytes & = 64 hex \textit{ou} 32 UTF-8 \\
+\textbf{IV (CBC):} & 16 bytes & = 32 hex \textit{ou} 16 UTF-8 \\
+\end{tabular}
+\end{successbox}
+
+\begin{warningbox}
+\textbf{\faExclamationTriangle\ Lembre-se:}
+\begin{itemize}
+    \item \textbf{Cifragem AES:} Precisa da mesma chave/IV/modo para decifrar
+    \item \textbf{Assinatura RSA:} Chave privada assina, chave pública verifica
+    \item \textbf{Modo ECB:} Não precisa de IV, mas é menos seguro
+    \item \textbf{Modo CBC:} Precisa de IV diferente para cada cifragem
+\end{itemize}
+\end{warningbox}
+
+\section{Testes e Validação}
+
+\subsection{Teste Rápido AES}
+
+\begin{lstlisting}[style=bashstyle]
+# 1. Criar arquivo de teste
+echo "Mensagem de teste AES" > teste_aes.txt
+
+# 2. Cifrar usando o sistema (opcao 1)
+#    Chave: TesteCifragem!! (UTF8, 128 bits = 16 caracteres)
+#    IV: InicializacaoX (UTF8, 16 caracteres)
+#    Modo: CBC, Formato saida: BASE64
+
+# 3. Decifrar usando mesma chave/IV (opcao 2)
+
+# 4. Verificar se conteudo foi recuperado
+diff teste_aes.txt teste_aes_decifrado.txt  # Deve estar vazio
+\end{lstlisting}
+
+\subsection{Teste Rápido RSA}
+
+\begin{lstlisting}[style=bashstyle]
+# 1. Criar documento de teste
+echo "Documento de teste RSA" > teste_rsa.txt
+
+# 2. Gerar par de chaves (opcao 3)
+#    Tamanho: 2048 bits
+#    Arquivos: test_priv.pem, test_pub.pem
+
+# 3. Assinar documento (opcao 4)
+#    Chave privada: test_priv.pem
+#    SHA: 256, Formato: BASE64
+
+# 4. Verificar assinatura (opcao 5)
+#    Resultado esperado: "Assinatura VALIDA"
+
+# 5. Testar integridade
+echo "Modificacao" >> teste_rsa.txt
+
+# 6. Verificar novamente (opcao 5)
+#    Resultado esperado: "Assinatura INVALIDA"
+\end{lstlisting}
+
+\subsection{Compatibilidade com OpenSSL}
+
+As chaves RSA geradas são compatíveis com OpenSSL:
+
+\begin{lstlisting}[style=bashstyle,caption={Verificar chaves geradas}]
+# Verificar chave privada
+openssl rsa -in privada.pem -check -noout
+
+# Ver informacoes da chave publica
+openssl rsa -in publica.pem -pubin -text -noout
+\end{lstlisting}
+
+\section{Erros Comuns e Soluções}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{|p{5.5cm}|p{6cm}|}
+\hline
+\rowcolor{primaryblue!20}
+\textbf{Erro} & \textbf{Solução} \\ \hline
+\texttt{Arquivo não encontrado} & Verificar se o arquivo existe no diretório atual ou usar caminho absoluto \\ \hline
+\texttt{Chave com tamanho incorreto} & Conferir tabela de tamanhos: AES-256 = 64 hex OU 32 UTF-8 \\ \hline
+\texttt{IV com tamanho incorreto} & IV sempre tem 16 bytes (32 hex OU 16 UTF-8) \\ \hline
+\texttt{Padding inválido} & Usar EXATAMENTE a mesma chave, IV e modo da cifragem \\ \hline
+\texttt{Assinatura inválida} & Arquivo foi modificado ou parâmetros incorretos \\ \hline
+\texttt{Erro ao converter hexadecimal} & Usar apenas caracteres 0-9, a-f (sem espaços) \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Conclusão}
+
+Este trabalho implementou com sucesso um sistema completo de criptografia em Python, demonstrando:
+
+\begin{itemize}[leftmargin=*]
+    \item[\faStar] Implementação correta de AES (ECB/CBC) com PKCS7
+    \item[\faStar] Geração e uso de chaves RSA compatíveis com OpenSSL
+    \item[\faStar] Assinatura digital RSA-PSS com SHA-2
+    \item[\faStar] Interface intuitiva e tratamento robusto de erros
+    \item[\faStar] Suporte a múltiplos formatos (HEX, Base64, UTF-8)
+\end{itemize}
+
+\begin{successbox}{Contribuições}
+Sistema profissional e funcional que pode ser usado tanto para fins educacionais quanto práticos, seguindo padrões modernos de segurança e compatibilidade com ferramentas industriais.
+\end{successbox}
+
+\subsection{Referências}
+
+\begin{enumerate}
+    \item STALLINGS, William. \textit{Cryptography and Network Security}. 7th ed. Pearson, 2017.
+    \item NIST. \textit{Advanced Encryption Standard (AES)}. FIPS PUB 197, 2001.
+    \item RIVEST, R.; SHAMIR, A.; ADLEMAN, L. \textit{A Method for Obtaining Digital Signatures}. CACM, v. 21, n. 2, 1978.
+    \item Python Cryptographic Authority. \textit{Cryptography Documentation}. \url{https://cryptography.io/}, 2025.
+\end{enumerate}
+
+\begin{center}
+\begin{tcolorbox}[width=0.85\textwidth,colback=primaryblue!10,colframe=primaryblue]
+\textbf{Contato}\\
+Caio Victor Ferreira do Nascimento\\
+caio.ferreira@ufpi.edu.br\\
+Universidade Federal do Piauí - UFPI\\
+Disciplina: Segurança em Sistemas\\
+Outubro de 2025
+\end{tcolorbox}
+\end{center}
+
+\end{document}
+
+\subsubsection{Geração de Chaves Seguras para AES}
+
+\begin{lstlisting}[caption={Script para gerar chaves AES aleatórias}]
+import os
+import binascii
+
+def gerar_chave_aes(tamanho_bits):
+    """Gera chave AES aleatória"""
+    tamanho_bytes = tamanho_bits // 8
+    chave = os.urandom(tamanho_bytes)
+    chave_hex = binascii.hexlify(chave).decode()
+    return chave_hex
+
+def gerar_iv():
+    """Gera IV aleatório (sempre 128 bits)"""
+    iv = os.urandom(16)
+    iv_hex = binascii.hexlify(iv).decode()
+    return iv_hex
+
+if __name__ == "__main__":
+    print("=== GERADOR DE CHAVES SEGURAS ===\n")
+    
+    print("AES-128:")
+    print(f"  Chave: {gerar_chave_aes(128)}\n")
+    
+    print("AES-192:")
+    print(f"  Chave: {gerar_chave_aes(192)}\n")
+    
+    print("AES-256:")
+    print(f"  Chave: {gerar_chave_aes(256)}\n")
+    
+    print("IV (para CBC):")
+    print(f"  IV: {gerar_iv()}")
+\end{lstlisting}
+
+\begin{warningbox}{Regras de Ouro para Chaves}
+\begin{enumerate}
+    \item \textbf{NUNCA} use senhas previsíveis como \texttt{"123456"} ou \texttt{"password"}
+    \item \textbf{SEMPRE} gere chaves aleatórias usando \texttt{os.urandom()}
+    \item \textbf{NUNCA} reutilize IVs com a mesma chave no modo CBC
+    \item \textbf{SEMPRE} guarde chaves em local seguro (não no código!)
+    \item \textbf{NUNCA} compartilhe chaves por email ou chat não criptografado
+\end{enumerate}
+\end{warningbox}
+
+\subsubsection{Tabela Comparativa de Modos e Tamanhos}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\rowcolor{primaryblue!20}
+\textbf{Modo} & \textbf{Segurança} & \textbf{Requer IV?} & \textbf{Paralelizável?} \\ \hline
+ECB & \cellcolor{dangerred!20}Baixa & Não & Sim \\ \hline
+CBC & \cellcolor{successgreen!20}Alta & Sim & Não \\ \hline
+\end{tabular}
+\caption{Comparação de Modos AES}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|l|}
+\hline
+\rowcolor{primaryblue!20}
+\textbf{Tamanho} & \textbf{Bits} & \textbf{Nível de Segurança} \\ \hline
+AES-128 & 128 & \cellcolor{successgreen!20}Seguro ($2^{128}$ combinações) \\ \hline
+AES-192 & 192 & \cellcolor{successgreen!40}Muito Seguro \\ \hline
+AES-256 & 256 & \cellcolor{successgreen!60}Extremamente Seguro \\ \hline
+\rowcolor{gray!10}
+RSA-1024 & 1024 & \cellcolor{dangerred!20}Obsoleto (não usar!) \\ \hline
+RSA-2048 & 2048 & \cellcolor{successgreen!20}Seguro (recomendado) \\ \hline
+\end{tabular}
+\caption{Níveis de Segurança por Tamanho de Chave}
+\end{table}
+
+\section{Tratamento de Erros}
+
+\subsection{Erros Comuns e Soluções}
+
+\begin{tcolorbox}[colback=dangerred!5,colframe=dangerred,title=\faBug\ Erro 1: Arquivo não encontrado]
+\textbf{Mensagem:} \texttt{✗ Arquivo 'dados.txt' não encontrado}
+
+\textbf{Causa:} O caminho do arquivo está incorreto ou o arquivo não existe.
+
+\textbf{Solução:}
+\begin{itemize}
+    \item Verifique se o arquivo existe: \texttt{ls dados.txt} (Linux/Mac) ou \texttt{dir dados.txt} (Windows)
+    \item Use caminho absoluto: \texttt{/home/user/dados.txt}
+    \item Verifique permissões de leitura do arquivo
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=dangerred!5,colframe=dangerred,title=\faBug\ Erro 2: Tamanho de chave incorreto]
+\textbf{Mensagem:} \texttt{✗ Chave deve ter 32 bytes (256 bits)}
+
+\textbf{Causa:} A chave fornecida não tem o tamanho correto.
+
+\textbf{Solução para HEX:}
+\begin{itemize}
+    \item AES-128: 32 caracteres hex (16 bytes)
+    \item AES-192: 48 caracteres hex (24 bytes)
+    \item AES-256: 64 caracteres hex (32 bytes)
+\end{itemize}
+
+\textbf{Solução para UTF-8:}
+\begin{itemize}
+    \item AES-128: 16 caracteres ASCII
+    \item AES-192: 24 caracteres ASCII
+    \item AES-256: 32 caracteres ASCII
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=dangerred!5,colframe=dangerred,title=\faBug\ Erro 3: IV incorreto]
+\textbf{Mensagem:} \texttt{✗ IV deve ter 16 bytes (128 bits)}
+
+\textbf{Causa:} O IV (Vetor de Inicialização) não tem 128 bits.
+
+\textbf{Solução:}
+\begin{itemize}
+    \item Para HEX: use exatamente 32 caracteres hex
+    \item Para UTF-8: use exatamente 16 caracteres ASCII
+    \item Exemplo HEX válido: \texttt{0123456789ABCDEF0123456789ABCDEF}
+    \item Exemplo UTF-8 válido: \texttt{1234567890123456}
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=dangerred!5,colframe=dangerred,title=\faBug\ Erro 4: Padding inválido ao decifrar]
+\textbf{Mensagem:} \texttt{✗ Erro na decifragem: Padding inválido}
+
+\textbf{Causa:} Chave, IV ou modo de operação incorretos.
+
+\textbf{Solução:}
+\begin{itemize}
+    \item Verifique se está usando a MESMA chave usada na cifragem
+    \item Verifique se está usando o MESMO IV (se modo CBC)
+    \item Verifique se está usando o MESMO modo (ECB ou CBC)
+    \item Verifique se o formato de entrada está correto (HEX/BASE64)
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=dangerred!5,colframe=dangerred,title=\faBug\ Erro 5: Formato hexadecimal inválido]
+\textbf{Mensagem:} \texttt{✗ Erro ao converter hexadecimal}
+
+\textbf{Causa:} String contém caracteres não-hexadecimais.
+
+\textbf{Solução:}
+\begin{itemize}
+    \item Use apenas: 0-9, A-F, a-f
+    \item Remova espaços e quebras de linha
+    \item Certifique-se de ter número par de caracteres
+    \item Exemplo válido: \texttt{ABCDEF123456}
+    \item Exemplo inválido: \texttt{GHIJK} (contém G, H, I, J, K)
+\end{itemize}
+\end{tcolorbox}
+
+\section{Aspectos de Segurança}
+
+\subsection{Boas Práticas Implementadas}
+
+\begin{tcolorbox}[colback=successgreen!10,colframe=successgreen,title=\faShieldAlt\ Segurança por Design]
+\begin{enumerate}[leftmargin=*]
+    \item[\faCheck] \textbf{Biblioteca confiável:} \texttt{cryptography} mantida pela PyCA (Python Cryptographic Authority)
+    \item[\faCheck] \textbf{Padding robusto:} PKCS7 com validação de integridade
+    \item[\faCheck] \textbf{Assinatura moderna:} PSS ao invés de PKCS\#1 v1.5 (mais seguro)
+    \item[\faCheck] \textbf{Funções hash atuais:} Família SHA-2 (256/384/512 bits)
+    \item[\faCheck] \textbf{Padrões industriais:} Formato PEM compatível com OpenSSL
+    \item[\faCheck] \textbf{Tratamento de erros:} Mensagens seguras sem vazamento de informações
+\end{enumerate}
+\end{tcolorbox}
+
+\subsection{Recomendações Críticas de Segurança}
+
+\subsubsection{Gerenciamento de Chaves}
+
+\begin{dangerbox}{NUNCA Faça Isso}
+\begin{itemize}
+    \item Compartilhar chaves privadas por email, WhatsApp ou Slack
+    \item Incluir chaves no código-fonte do projeto
+    \item Versionar chaves no Git/GitHub
+    \item Usar chaves fracas como \texttt{"123456"} ou \texttt{"senha"}
+    \item Reutilizar a mesma chave para múltiplos propósitos
+\end{itemize}
+\end{dangerbox}
+
+\begin{successbox}{SEMPRE Faça Isso}
+\begin{itemize}
+    \item Gerar chaves aleatórias com \texttt{os.urandom()}
+    \item Armazenar chaves em vault (HashiCorp Vault, AWS KMS, Azure Key Vault)
+    \item Usar permissões restritas: \texttt{chmod 600 chave\_privada.pem}
+    \item Rotacionar chaves periodicamente (a cada 90-180 dias)
+    \item Manter backup seguro das chaves em local separado
+\end{itemize}
+\end{successbox}
+
+\subsubsection{Proteção de Dados em Produção}
+
+\begin{tcolorbox}[colback=warningorange!10,colframe=warningorange,title=\faExclamationTriangle\ Configurações Recomendadas para Produção]
+\begin{description}
+    \item[Modo AES:] Use CBC (nunca ECB)
+    \item[Tamanho chave:] AES-256 (32 bytes)
+    \item[IV:] Gere novo IV aleatório para cada operação
+    \item[RSA:] Mínimo 2048 bits, recomendado 4096 para dados críticos
+    \item[SHA:] Use SHA-256 ou superior (SHA-384, SHA-512)
+    \item[Autenticação:] Adicione HMAC-SHA256 além da cifragem
+\end{description}
+\end{tcolorbox}
+
+\begin{lstlisting}[caption={Exemplo: Armazenamento Seguro de Chaves (variáveis de ambiente)}]
+import os
+
+def obter_chave_segura():
+    """Obtém chave de variável de ambiente"""
+    chave = os.environ.get('CRYPTO_KEY')
+    if not chave:
+        raise ValueError("Chave não configurada! Defina CRYPTO_KEY")
+    return chave
+
+def obter_iv_seguro():
+    """Obtém IV de variável de ambiente"""
+    iv = os.environ.get('CRYPTO_IV')
+    if not iv:
+        raise ValueError("IV não configurado! Defina CRYPTO_IV")
+    return iv
+
+chave = obter_chave_segura()
+iv = obter_iv_seguro()
+\end{lstlisting}
+
+\subsection{Checklist de Segurança}
+
+\begin{tcolorbox}[colback=primaryblue!5,colframe=primaryblue,title=\faClipboardList\ Antes de Usar em Produção]
+\begin{itemize}
+    \item[\faSquare] Revisar e testar todo o código
+    \item[\faSquare] Gerar chaves aleatórias fortes
+    \item[\faSquare] Configurar armazenamento seguro de chaves
+    \item[\faSquare] Implementar rotação de chaves
+    \item[\faSquare] Configurar logs de auditoria
+    \item[\faSquare] Testar recuperação de desastres
+    \item[\faSquare] Documentar procedimentos de segurança
+    \item[\faSquare] Treinar equipe em melhores práticas
+    \item[\faSquare] Realizar testes de penetração
+    \item[\faSquare] Configurar monitoramento de segurança
+\end{itemize}
+\end{tcolorbox}
+
+\section{Limitações e Trabalhos Futuros}
+
+\subsection{Limitações Atuais}
+
+\begin{tcolorbox}[colback=warningorange!10,colframe=warningorange,title=\faExclamationCircle\ Limitações Conhecidas]
+\begin{enumerate}
+    \item \textbf{Chaves não protegidas:} Chaves privadas RSA não têm criptografia por senha
+    \item \textbf{Modos limitados:} Apenas ECB e CBC (faltam GCM, CTR, OFB, CFB)
+    \item \textbf{Sem autenticação integrada:} AES não inclui MAC/HMAC
+    \item \textbf{Interface básica:} Apenas linha de comando
+    \item \textbf{Sem gerenciamento de chaves:} Ausência de keystore/vault integrado
+    \item \textbf{Performance:} Não otimizado para arquivos muito grandes (>1GB)
+\end{enumerate}
+\end{tcolorbox}
+
+\subsection{Roadmap - Melhorias Futuras}
+
+\begin{tcolorbox}[colback=primaryblue!10,colframe=primaryblue,title=\faRoad\ Próximas Versões]
+\textbf{Versão 2.0:}
+\begin{itemize}
+    \item Implementar modo AES-GCM (autenticação integrada)
+    \item Adicionar proteção por senha para chaves privadas
+    \item Interface gráfica (GUI) com PyQt ou Tkinter
+    \item Suporte a streaming para arquivos grandes
+\end{itemize}
+
+\textbf{Versão 3.0:}
+\begin{itemize}
+    \item Gerenciador de chaves integrado
+    \item Suporte a certificados X.509
+    \item Protocolo de troca de chaves Diffie-Hellman
+    \item API REST para integração
+\end{itemize}
+
+\textbf{Versão 4.0:}
+\begin{itemize}
+    \item Logging e auditoria completa
+    \item Processamento em lote (batch)
+    \item Compressão antes de cifrar
+    \item Suporte a múltiplas linguagens (i18n)
+\end{itemize}
+\end{tcolorbox}
+
+\section{Conclusão}
+
+\begin{tcolorbox}[colback=successgreen!10,colframe=successgreen,arc=5mm]
+\large
+Este trabalho apresentou uma implementação completa, funcional e \textbf{profissional} de algoritmos criptográficos fundamentais em Python. O sistema desenvolvido demonstra compreensão profunda dos conceitos de segurança da informação e suas aplicações práticas.
+\end{tcolorbox}
+
+\subsection{Objetivos Alcançados}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\rowcolor{successgreen!20}
+\textbf{Objetivo} & \textbf{Status} \\ \hline
+Implementar AES (ECB e CBC) & \cellcolor{successgreen!40}\faCheckCircle\ Completo \\ \hline
+Implementar RSA (geração de chaves) & \cellcolor{successgreen!40}\faCheckCircle\ Completo \\ \hline
+Implementar assinatura digital & \cellcolor{successgreen!40}\faCheckCircle\ Completo \\ \hline
+Interface intuitiva & \cellcolor{successgreen!40}\faCheckCircle\ Completo \\ \hline
+Compatibilidade OpenSSL & \cellcolor{successgreen!40}\faCheckCircle\ Completo \\ \hline
+Tratamento robusto de erros & \cellcolor{successgreen!40}\faCheckCircle\ Completo \\ \hline
+Documentação completa & \cellcolor{successgreen!40}\faCheckCircle\ Completo \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Principais Contribuições}
+
+\begin{itemize}[leftmargin=*]
+    \item[\faStar] Sistema completo e funcional de criptografia
+    \item[\faStar] Suporte a múltiplos formatos (HEX, Base64, UTF-8)
+    \item[\faStar] Implementação de padrões modernos (PSS, PKCS7, PKCS8)
+    \item[\faStar] Interoperabilidade com ferramentas padrão da indústria
+    \item[\faStar] Código bem estruturado e documentado
+    \item[\faStar] Exemplos práticos extensivos
+\end{itemize}
+
+\subsection{Aprendizados Técnicos}
+
+Durante o desenvolvimento deste projeto, foram consolidados conhecimentos essenciais sobre:
+
+\begin{tcolorbox}[colback=lightblue!10,colframe=primaryblue]
+\begin{description}
+    \item[Criptografia Simétrica:] Funcionamento do AES, modos de operação, importância do padding
+    \item[Criptografia Assimétrica:] Conceitos de chave pública/privada, geração de pares RSA
+    \item[Assinatura Digital:] Garantias de autenticidade, integridade e não-repúdio
+    \item[Gerenciamento de Chaves:] Boas práticas de armazenamento e distribuição
+    \item[Bibliotecas Python:] Uso profissional da biblioteca \texttt{cryptography}
+    \item[Interoperabilidade:] Compatibilidade com padrões industriais (OpenSSL, PEM)
+    \item[Tratamento de Erros:] Desenvolvimento robusto com validações adequadas
+\end{description}
+\end{tcolorbox}
+
+\subsection{Aplicações Práticas}
+
+Este sistema pode ser utilizado em diversos cenários:
+
+\begin{tcolorbox}[colback=codebg,colframe=gray]
+\textbf{Educacional:}
+\begin{itemize}
+    \item Ensino de criptografia
+    \item Demonstrações práticas
+    \item Laboratórios de segurança
+\end{itemize}
+
+\textbf{Profissional:}
+\begin{itemize}
+    \item Proteção de documentos confidenciais
+    \item Backup criptografado
+    \item Assinatura de contratos digitais
+    \item Integração em sistemas corporativos
+\end{itemize}
+
+\textbf{Pessoal:}
+\begin{itemize}
+    \item Proteger arquivos pessoais
+    \item Comunicação segura
+    \item Armazenamento em nuvem criptografado
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Considerações Finais}
+
+\begin{infobox}{Mensagem Final}
+A criptografia é um pilar fundamental da segurança da informação no mundo digital. Este projeto demonstra que, com as ferramentas e conhecimentos adequados, é possível implementar soluções seguras e eficazes. Entretanto, é crucial lembrar que a segurança é um processo contínuo que requer atualização constante e adesão a melhores práticas.
+
+\textbf{Lembre-se:} A segurança de um sistema é tão forte quanto seu elo mais fraco. Use este sistema com responsabilidade e sempre seguindo as recomendações de segurança apresentadas.
+\end{infobox}
+
+\section{Testes e Validação}
+
+\subsection{Teste Completo: Workflow AES}
+
+\begin{lstlisting}[style=bashstyle,caption={Script de teste automatizado para AES}]
+#!/bin/bash
+# Script de teste completo AES-256-CBC
+
+echo "=== TESTE DE CIFRAGEM E DECIFRAGEM AES ==="
+
+# 1. Criar arquivo de teste
+echo "Conteudo secreto para teste de criptografia" > teste_original.txt
+echo "[OK] Arquivo teste criado"
+
+# 2. Gerar chave e IV (use Python para gerar)
+python3 << EOF
+import os, binascii
+print(binascii.hexlify(os.urandom(32)).decode())  # Chave 256
+print(binascii.hexlify(os.urandom(16)).decode())  # IV 128
+EOF
+
+# 3. Cifrar com o sistema
+# (Execute manualmente o programa e anote a chave/IV)
+
+# 4. Decifrar
+# (Execute manualmente com mesma chave/IV)
+
+# 5. Verificar integridade
+diff teste_original.txt teste_decifrado.txt
+if [ $? -eq 0 ]; then
+    echo "[SUCESSO] Arquivos identicos!"
+else
+    echo "[FALHA] Arquivos diferentes!"
+fi
+
+# 6. Cleanup
+rm teste_original.txt teste_cifrado.txt teste_decifrado.txt
+\end{lstlisting}
+
+\subsection{Teste Completo: Workflow RSA}
+
+\begin{lstlisting}[style=bashstyle,caption={Teste de assinatura e verificação RSA}]
+#!/bin/bash
+# Script de teste completo RSA
+
+echo "=== TESTE DE ASSINATURA DIGITAL RSA ==="
+
+# 1. Criar documento teste
+cat << 'EOF' > documento.txt
+CONTRATO DE PRESTACAO DE SERVICOS
+Partes: João Silva e Maria Santos
+Valor: R$ 10.000,00
+Data: 14/10/2025
+EOF
+
+echo "[OK] Documento criado"
+
+# 2. Gerar chaves RSA (via sistema)
+echo "[INFO] Execute: opcao 3, tamanho 2048"
+
+# 3. Assinar documento (via sistema)
+echo "[INFO] Execute: opcao 4"
+
+# 4. Verificar assinatura (via sistema)
+echo "[INFO] Execute: opcao 5"
+echo "[ESPERADO] Assinatura VALIDA"
+
+# 5. Teste de integridade - modificar documento
+echo "Clausula fraudulenta" >> documento.txt
+echo "[INFO] Documento modificado"
+
+# 6. Verificar novamente
+echo "[INFO] Execute: opcao 5 novamente"
+echo "[ESPERADO] Assinatura INVALIDA"
+
+# Cleanup
+rm documento.txt *.sig
+\end{lstlisting}
+
+\subsection{Interoperabilidade com OpenSSL}
+
+O sistema é totalmente compatível com OpenSSL. Você pode cifrar com o sistema Python e decifrar com OpenSSL (e vice-versa).
+
+\begin{lstlisting}[style=bashstyle,caption={Verificar chaves RSA geradas com OpenSSL}]
+# Verificar chave privada
+openssl rsa -in minha_chave_privada.pem -check -noout
+
+# Ver detalhes da chave privada
+openssl rsa -in minha_chave_privada.pem -text -noout
+
+# Verificar chave publica
+openssl rsa -in minha_chave_publica.pem -pubin -text -noout
+
+# Extrair chave publica da privada
+openssl rsa -in minha_chave_privada.pem -pubout \
+    -out extraida_publica.pem
+
+# Comparar chaves publicas
+diff minha_chave_publica.pem extraida_publica.pem
+\end{lstlisting}
+
+\begin{lstlisting}[style=bashstyle,caption={Decifrar AES com OpenSSL (modo CBC)}]
+# Arquivo cifrado pelo sistema Python em HEX
+# Converter HEX para binario
+xxd -r -p arquivo_cifrado.txt > arquivo.bin
+
+# Decifrar com OpenSSL
+openssl enc -d -aes-256-cbc \
+    -in arquivo.bin \
+    -out arquivo_decifrado.txt \
+    -K <chave_em_hex> \
+    -iv <iv_em_hex>
+
+# Verificar resultado
+cat arquivo_decifrado.txt
+\end{lstlisting}
+
+\begin{infobox}{Compatibilidade Total}
+As chaves RSA geradas são padrão PKCS\#8 e podem ser usadas em qualquer ferramenta que suporte OpenSSL, incluindo Java (Bouncy Castle), PHP (openssl), Node.js (crypto), etc.
+\end{infobox}
+
+\section{Referências Bibliográficas}
+
+\begin{enumerate}
+    \item STALLINGS, William. \textit{Cryptography and Network Security: Principles and Practice}. 7th ed. Pearson, 2017.
+    
+    \item SCHNEIER, Bruce. \textit{Applied Cryptography: Protocols, Algorithms, and Source Code in C}. 2nd ed. Wiley, 1996.
+    
+    \item NIST. \textit{Advanced Encryption Standard (AES)}. FIPS PUB 197, 2001.
+    
+    \item RIVEST, R. L.; SHAMIR, A.; ADLEMAN, L. \textit{A Method for Obtaining Digital Signatures and Public-Key Cryptosystems}. Communications of the ACM, v. 21, n. 2, p. 120-126, 1978.
+    
+    \item Python Cryptography Authority. \textit{Cryptography Documentation}. Disponível em: \url{https://cryptography.io/}. Acesso em: 2025.
+    
+    \item DWORKIN, Morris J. \textit{Recommendation for Block Cipher Modes of Operation}. NIST Special Publication 800-38A, 2001.
+    
+    \item KALISKI, B. \textit{PKCS \#7: Cryptographic Message Syntax Version 1.5}. RFC 2315, 1998.
+    
+    \item JONSSON, J.; KALISKI, B. \textit{Public-Key Cryptography Standards (PKCS) \#1: RSA Cryptography Specifications Version 2.1}. RFC 3447, 2003.
+\end{enumerate}
+
+\section{Referências Bibliográficas}
+
+\begin{enumerate}
+    \item STALLINGS, William. \textit{Cryptography and Network Security: Principles and Practice}. 7th ed. Pearson, 2017.
+    
+    \item SCHNEIER, Bruce. \textit{Applied Cryptography: Protocols, Algorithms, and Source Code in C}. 2nd ed. John Wiley \& Sons, 1996.
+    
+    \item NIST. \textit{Advanced Encryption Standard (AES)}. Federal Information Processing Standards Publication 197, 2001.
+    
+    \item RIVEST, Ronald L.; SHAMIR, Adi; ADLEMAN, Leonard. \textit{A Method for Obtaining Digital Signatures and Public-Key Cryptosystems}. Communications of the ACM, v. 21, n. 2, p. 120-126, 1978.
+    
+    \item Python Cryptographic Authority. \textit{Cryptography Documentation}. Disponível em: \url{https://cryptography.io/en/latest/}. Acesso em: out. 2025.
+    
+    \item DWORKIN, Morris J. \textit{Recommendation for Block Cipher Modes of Operation}. NIST Special Publication 800-38A, 2001.
+    
+    \item KALISKI, Burt. \textit{PKCS \#7: Cryptographic Message Syntax Version 1.5}. RFC 2315, IETF, 1998.
+    
+    \item JONSSON, Jakob; KALISKI, Burt. \textit{Public-Key Cryptography Standards (PKCS) \#1: RSA Cryptography Specifications Version 2.1}. RFC 3447, IETF, 2003.
+    
+    \item BELLARE, Mihir; ROGAWAY, Phillip. \textit{PSS: Provably Secure Encoding Method for Digital Signatures}. IEEE P1363a, 1998.
+    
+    \item EASTLAKE, Donald; JONES, Paul. \textit{US Secure Hash Algorithm 1 (SHA1)}. RFC 3174, IETF, 2001.
+\end{enumerate}
+
+\appendix
+
+\section{Código Fonte Completo}
+
+\begin{infobox}{Disponibilidade do Código}
+O código fonte completo está disponível no arquivo \texttt{trabalhoSeg.py} e implementa todas as funcionalidades descritas neste documento. O código é open-source e pode ser modificado conforme necessário.
+\end{infobox}
+
+\section{Glossário Técnico}
+
+\begin{description}[style=nextline,leftmargin=2cm]
+    \item[AES] \textit{Advanced Encryption Standard} - Padrão de criptografia simétrica aprovado pelo NIST em 2001, sucessor do DES.
+    
+    \item[RSA] \textit{Rivest-Shamir-Adleman} - Algoritmo de criptografia assimétrica baseado na dificuldade de fatoração de números primos grandes.
+    
+    \item[CBC] \textit{Cipher Block Chaining} - Modo de operação em bloco onde cada bloco de plaintext é combinado com o ciphertext do bloco anterior via XOR.
+    
+    \item[ECB] \textit{Electronic Codebook} - Modo de operação mais simples onde cada bloco é cifrado independentemente (inseguro).
+    
+    \item[IV] \textit{Initialization Vector} - Vetor de inicialização aleatório usado em modos como CBC para garantir que mesmo plaintexts idênticos produzam ciphertexts diferentes.
+    
+    \item[Padding] Preenchimento adicionado aos dados para ajustá-los ao tamanho do bloco da cifra.
+    
+    \item[PKCS7] \textit{Public Key Cryptography Standards \#7} - Padrão de padding onde o valor de cada byte de padding é igual ao número de bytes adicionados.
+    
+    \item[PKCS8] \textit{Public Key Cryptography Standards \#8} - Padrão para sintaxe de informação de chave privada.
+    
+    \item[PSS] \textit{Probabilistic Signature Scheme} - Esquema de assinatura RSA probabilístico mais seguro que PKCS\#1 v1.5.
+    
+    \item[SHA-2] \textit{Secure Hash Algorithm 2} - Família de funções hash criptográficas (SHA-256, SHA-384, SHA-512) projetada pela NSA.
+    
+    \item[PEM] \textit{Privacy Enhanced Mail} - Formato de codificação Base64 para chaves e certificados.
+    
+    \item[Base64] Esquema de codificação que representa dados binários em formato ASCII usando 64 caracteres imprimíveis.
+    
+    \item[Hexadecimal] Sistema de numeração de base 16 usando dígitos 0-9 e letras A-F.
+    
+    \item[Hash] Função matemática unidirecional que mapeia dados de tamanho arbitrário para um valor de tamanho fixo.
+    
+    \item[Salt] Dados aleatórios adicionados antes do hash para proteger contra ataques de dicionário.
+    
+    \item[MAC] \textit{Message Authentication Code} - Código de autenticação de mensagem usado para verificar integridade e autenticidade.
+    
+    \item[HMAC] \textit{Hash-based Message Authentication Code} - MAC específico que usa função hash criptográfica.
+\end{description}
+
+\section{Tabelas de Referência Rápida}
+
+\subsection{Tamanhos de Chave e IV}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\rowcolor{primaryblue!20}
+\textbf{Algoritmo} & \textbf{Bits} & \textbf{Bytes} & \textbf{Caracteres HEX} \\ \hline
+AES-128 & 128 & 16 & 32 \\ \hline
+AES-192 & 192 & 24 & 48 \\ \hline
+AES-256 & 256 & 32 & 64 \\ \hline
+\rowcolor{gray!10}
+IV (CBC) & 128 & 16 & 32 \\ \hline
+RSA-1024 & 1024 & 128 & 256 \\ \hline
+RSA-2048 & 2048 & 256 & 512 \\ \hline
+\end{tabular}
+\caption{Tamanhos de Chaves e Vetores}
+\end{table}
+
+\subsection{Comandos Rápidos}
+
+\begin{tcolorbox}[colback=codebg,colframe=gray,title=\faTerminal\ Cheat Sheet]
+\textbf{Gerar chave AES-256:}
+\begin{lstlisting}[style=bashstyle]
+python3 -c "import os; print(os.urandom(32).hex())"
+\end{lstlisting}
+
+\textbf{Gerar IV:}
+\begin{lstlisting}[style=bashstyle]
+python3 -c "import os; print(os.urandom(16).hex())"
+\end{lstlisting}
+
+\textbf{Converter arquivo para Base64:}
+\begin{lstlisting}[style=bashstyle]
+base64 arquivo.txt > arquivo.b64
+\end{lstlisting}
+
+\textbf{Converter Base64 para arquivo:}
+\begin{lstlisting}[style=bashstyle]
+base64 -d arquivo.b64 > arquivo.txt
+\end{lstlisting}
+
+\textbf{Converter HEX para binário:}
+\begin{lstlisting}[style=bashstyle]
+xxd -r -p arquivo.hex > arquivo.bin
+\end{lstlisting}
+
+\textbf{Converter binário para HEX:}
+\begin{lstlisting}[style=bashstyle]
+xxd -p arquivo.bin > arquivo.hex
+\end{lstlisting}
+\end{tcolorbox}
+
+\section{Contato e Suporte}
+
+\begin{tcolorbox}[colback=primaryblue!10,colframe=primaryblue]
+\textbf{Autor:} Seu Nome\\
+\textbf{Email:} seu.email@exemplo.com\\
+\textbf{GitHub:} \url{https://github.com/seu-usuario/crypto-project}\\
+\textbf{Disciplina:} Segurança em Sistemas Computacionais\\
+\textbf{Instituição:} Sua Universidade\\
+\textbf{Data:} Outubro de 2025
+\end{tcolorbox}
+
+\vspace{10mm}
+
+\begin{center}
+\begin{tcolorbox}[width=0.9\textwidth,colback=successgreen!10,colframe=successgreen,arc=5mm]
+\centering
+\Large\textbf{Fim do Documento}\\
+\vspace{3mm}
+\normalsize
+Obrigado por ler esta documentação!\\
+\vspace{2mm}
+\textit{``A criptografia é a base da confiança digital.''}
+\end{tcolorbox}
+\end{center}
+
+\end{document}

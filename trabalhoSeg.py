@@ -207,10 +207,7 @@ class CryptoTool:
             
             signature = private_key.sign(
                 plaintext,
-                padding.PSS(
-                    mgf=padding.MGF1(hash_algo),
-                    salt_length=padding.PSS.MAX_LENGTH
-                ),
+                padding.PKCS1v15(),
                 hash_algo
             )
             
@@ -261,10 +258,7 @@ class CryptoTool:
                 public_key.verify(
                     signature,
                     plaintext,
-                    padding.PSS(
-                        mgf=padding.MGF1(hash_algo),
-                        salt_length=padding.PSS.MAX_LENGTH
-                    ),
+                    padding.PKCS1v15(),
                     hash_algo
                 )
                 return { 'ok': True, 'msg': 'Assinatura VÁLIDA' }
