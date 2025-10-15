@@ -7,6 +7,7 @@ Algoritmos de Criptografia: AES e RSA
 import os
 import sys
 import base64
+import traceback
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
@@ -126,13 +127,13 @@ class CryptoTool:
             # Salvar arquivo
             with open(output_file, 'w') as f:
                 f.write(output_data)
-            
-            print(f"✓ Arquivo cifrado com sucesso: {output_file}")
-            
-        except FileNotFoundError:
-            print(f"✗ Erro: Arquivo '{plaintext_file}' não encontrado")
+
+            return { 'ok': True, 'msg': f"Arquivo cifrado com sucesso: {output_file}", 'data': output_file }
+
+        except FileNotFoundError as e:
+            return { 'ok': False, 'msg': f"Arquivo '{plaintext_file}' não encontrado", 'exc': traceback.format_exc() }
         except Exception as e:
-            print(f"✗ Erro na cifragem: {e}")
+            return { 'ok': False, 'msg': f"Erro na cifragem: {e}", 'exc': traceback.format_exc() }
     
     def aes_decrypt(self, ciphertext_file, key, iv, key_size, mode, input_format, key_format, output_file):
         """
@@ -196,13 +197,13 @@ class CryptoTool:
             # Salvar arquivo
             with open(output_file, 'wb') as f:
                 f.write(plaintext)
-            
-            print(f"✓ Arquivo decifrado com sucesso: {output_file}")
-            
-        except FileNotFoundError:
-            print(f"✗ Erro: Arquivo '{ciphertext_file}' não encontrado")
+
+            return { 'ok': True, 'msg': f"Arquivo decifrado com sucesso: {output_file}", 'data': output_file }
+
+        except FileNotFoundError as e:
+            return { 'ok': False, 'msg': f"Arquivo '{ciphertext_file}' não encontrado", 'exc': traceback.format_exc() }
         except Exception as e:
-            print(f"✗ Erro na decifragem: {e}")
+            return { 'ok': False, 'msg': f"Erro na decifragem: {e}", 'exc': traceback.format_exc() }
     
     def generate_rsa_keys(self, key_size, private_key_file, public_key_file):
         """
@@ -241,16 +242,14 @@ class CryptoTool:
             # Salvar chaves
             with open(private_key_file, 'wb') as f:
                 f.write(private_pem)
-            
+
             with open(public_key_file, 'wb') as f:
                 f.write(public_pem)
-            
-            print(f"✓ Chaves RSA geradas com sucesso:")
-            print(f"  - Chave privada: {private_key_file}")
-            print(f"  - Chave pública: {public_key_file}")
-            
+
+            return { 'ok': True, 'msg': 'Chaves RSA geradas com sucesso', 'data': { 'private': private_key_file, 'public': public_key_file } }
+
         except Exception as e:
-            print(f"✗ Erro ao gerar chaves: {e}")
+            return { 'ok': False, 'msg': f"Erro ao gerar chaves: {e}", 'exc': traceback.format_exc() }
     
     def rsa_sign(self, private_key_file, plaintext_file, signature_file, sha_version, output_format):
         """
@@ -305,13 +304,13 @@ class CryptoTool:
             # Salvar assinatura
             with open(signature_file, 'w') as f:
                 f.write(output_data)
-            
-            print(f"✓ Arquivo assinado com sucesso: {signature_file}")
-            
+
+            return { 'ok': True, 'msg': f"Arquivo assinado com sucesso: {signature_file}", 'data': signature_file }
+
         except FileNotFoundError as e:
-            print(f"✗ Erro: Arquivo não encontrado - {e}")
+            return { 'ok': False, 'msg': f"Arquivo não encontrado - {e}", 'exc': traceback.format_exc() }
         except Exception as e:
-            print(f"✗ Erro ao assinar: {e}")
+            return { 'ok': False, 'msg': f"Erro ao assinar: {e}", 'exc': traceback.format_exc() }
     
     def rsa_verify(self, public_key_file, plaintext_file, signature_file, sha_version, input_format):
         """
@@ -367,14 +366,14 @@ class CryptoTool:
                     ),
                     hash_algo
                 )
-                print("✓ Assinatura VÁLIDA")
+                return { 'ok': True, 'msg': 'Assinatura VÁLIDA' }
             except Exception:
-                print("✗ Assinatura INVÁLIDA")
-            
+                return { 'ok': False, 'msg': 'Assinatura INVÁLIDA' }
+
         except FileNotFoundError as e:
-            print(f"✗ Erro: Arquivo não encontrado - {e}")
+            return { 'ok': False, 'msg': f"Arquivo não encontrado - {e}", 'exc': traceback.format_exc() }
         except Exception as e:
-            print(f"✗ Erro ao verificar assinatura: {e}")
+            return { 'ok': False, 'msg': f"Erro ao verificar assinatura: {e}", 'exc': traceback.format_exc() }
 
 
 def print_menu():
@@ -461,7 +460,9 @@ def main():
                 if not output_file:
                     continue
                 
-                crypto.aes_encrypt(plaintext_file, key, iv, key_size, mode, output_format, key_format, output_file)
+                res = crypto.aes_encrypt(plaintext_file, key, iv, key_size, mode, output_format, key_format, output_file)
+                if isinstance(res, dict):
+                    print(('✓ ' if res.get('ok') else '✗ ') + res.get('msg', ''))
             
             elif choice == '2':
                 # Decifrar AES
@@ -500,7 +501,9 @@ def main():
                 if not output_file:
                     continue
                 
-                crypto.aes_decrypt(ciphertext_file, key, iv, key_size, mode, input_format, key_format, output_file)
+                res = crypto.aes_decrypt(ciphertext_file, key, iv, key_size, mode, input_format, key_format, output_file)
+                if isinstance(res, dict):
+                    print(('✓ ' if res.get('ok') else '✗ ') + res.get('msg', ''))
             
             elif choice == '3':
                 # Gerar chaves RSA
@@ -517,7 +520,9 @@ def main():
                 if not public_key_file:
                     continue
                 
-                crypto.generate_rsa_keys(key_size, private_key_file, public_key_file)
+                res = crypto.generate_rsa_keys(key_size, private_key_file, public_key_file)
+                if isinstance(res, dict):
+                    print(('✓ ' if res.get('ok') else '✗ ') + res.get('msg', ''))
             
             elif choice == '4':
                 # Assinar RSA
@@ -542,7 +547,9 @@ def main():
                 if not output_format:
                     continue
                 
-                crypto.rsa_sign(private_key_file, plaintext_file, signature_file, sha_version, output_format)
+                res = crypto.rsa_sign(private_key_file, plaintext_file, signature_file, sha_version, output_format)
+                if isinstance(res, dict):
+                    print(('✓ ' if res.get('ok') else '✗ ') + res.get('msg', ''))
             
             elif choice == '5':
                 # Verificar assinatura RSA
@@ -567,7 +574,9 @@ def main():
                 if not input_format:
                     continue
                 
-                crypto.rsa_verify(public_key_file, plaintext_file, signature_file, sha_version, input_format)
+                res = crypto.rsa_verify(public_key_file, plaintext_file, signature_file, sha_version, input_format)
+                if isinstance(res, dict):
+                    print(('✓ ' if res.get('ok') else '✗ ') + res.get('msg', ''))
             
             elif choice == '0':
                 print("\nEncerrando programa...")
